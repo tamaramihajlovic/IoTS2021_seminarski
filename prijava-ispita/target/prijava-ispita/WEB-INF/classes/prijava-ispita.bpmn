@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1vuzby5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.14.0">
+  <bpmn:process id="prijavaIspita" name="Prijava Ispita" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1" name="Prijava primljena" camunda:formKey="app:prijaviispit.jsf">
+      <bpmn:outgoing>Flow_1cpb6zs</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1cpb6zs" sourceRef="StartEvent_1" targetRef="obradiPrijavu" />
+    <bpmn:serviceTask id="obradiPrijavu" name="Obradi Prijavu" camunda:expression="${prijavaBusinessLogic.persistPrijava(execution)}">
+      <bpmn:incoming>Flow_1cpb6zs</bpmn:incoming>
+      <bpmn:outgoing>Flow_1un76ix</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1un76ix" sourceRef="obradiPrijavu" targetRef="odobriPrijavu" />
+    <bpmn:userTask id="odobriPrijavu" name="Odobri Prijavu" camunda:formKey="app:odobriprijavu.jsf">
+      <bpmn:incoming>Flow_1un76ix</bpmn:incoming>
+      <bpmn:outgoing>Flow_1005d6m</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="odobrenaPrijava" name="Odobrena prijava?">
+      <bpmn:incoming>Flow_1005d6m</bpmn:incoming>
+      <bpmn:outgoing>flow1</bpmn:outgoing>
+      <bpmn:outgoing>flow2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1005d6m" sourceRef="odobriPrijavu" targetRef="odobrenaPrijava" />
+    <bpmn:sequenceFlow id="flow1" name="Yes" sourceRef="odobrenaPrijava" targetRef="prijavljivanjeIspita">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${prijavaBusinessLogic.getPrijava(prijavaId).odobren}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow2" name="No" sourceRef="odobrenaPrijava" targetRef="saljiMail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${not prijavaBusinessLogic.getPrijava(prijavaId).odobren}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="saljiMail" name="Posalji mail zbog odbijene prijave" camunda:expression="${prijavaBusinessLogic.rejectPrijava(execution)}">
+      <bpmn:incoming>flow2</bpmn:incoming>
+      <bpmn:outgoing>Flow_13maq2k</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="prijavljivanjeIspita" name="Prijavljivanje Ispita" camunda:formKey="app:odobravanjeprijave.jsf">
+      <bpmn:incoming>flow1</bpmn:incoming>
+      <bpmn:outgoing>Flow_1guzx38</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="end1" name="Prijavljen ispit">
+      <bpmn:incoming>Flow_1guzx38</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1guzx38" sourceRef="prijavljivanjeIspita" targetRef="end1" />
+    <bpmn:endEvent id="end2" name="Ispit nije prijavljen">
+      <bpmn:incoming>Flow_13maq2k</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13maq2k" sourceRef="saljiMail" targetRef="end2" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="prijavaIspita">
+      <bpmndi:BPMNEdge id="Flow_13maq2k_di" bpmnElement="Flow_13maq2k">
+        <di:waypoint x="810" y="240" />
+        <di:waypoint x="882" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1guzx38_di" bpmnElement="Flow_1guzx38">
+        <di:waypoint x="810" y="127" />
+        <di:waypoint x="882" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j1wtu0_di" bpmnElement="flow2">
+        <di:waypoint x="620" y="152" />
+        <di:waypoint x="620" y="240" />
+        <di:waypoint x="710" y="240" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="628" y="193" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_171u9uj_di" bpmnElement="flow1">
+        <di:waypoint x="645" y="127" />
+        <di:waypoint x="710" y="127" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="669" y="109" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1005d6m_di" bpmnElement="Flow_1005d6m">
+        <di:waypoint x="530" y="127" />
+        <di:waypoint x="595" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1un76ix_di" bpmnElement="Flow_1un76ix">
+        <di:waypoint x="370" y="127" />
+        <di:waypoint x="430" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1cpb6zs_di" bpmnElement="Flow_1cpb6zs">
+        <di:waypoint x="215" y="127" />
+        <di:waypoint x="270" y="127" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="109" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="159" y="152" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gv6zms_di" bpmnElement="obradiPrijavu">
+        <dc:Bounds x="270" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ff0nxv_di" bpmnElement="odobriPrijavu">
+        <dc:Bounds x="430" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_08833lw_di" bpmnElement="odobrenaPrijava" isMarkerVisible="true">
+        <dc:Bounds x="595" y="102" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="595" y="78" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1rzmyyl_di" bpmnElement="saljiMail">
+        <dc:Bounds x="710" y="200" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_027buc3_di" bpmnElement="prijavljivanjeIspita">
+        <dc:Bounds x="710" y="87" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0qj8fdj_di" bpmnElement="end1">
+        <dc:Bounds x="882" y="109" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="867" y="152" width="69" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1hrdu8c_di" bpmnElement="end2">
+        <dc:Bounds x="882" y="222" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="857" y="265" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

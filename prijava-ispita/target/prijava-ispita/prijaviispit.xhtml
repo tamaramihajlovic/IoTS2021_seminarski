@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core">
+
+<f:view>
+  <f:metadata>
+    <!-- Start a new process instance. Process Definition Key is read internally from
+         request parameters and cached in the CDI conversation scope.
+    -->
+    <f:event type="preRenderView" listener="#{camundaTaskForm.startProcessInstanceByKeyForm()}" />
+  </f:metadata>
+  <h:head>
+    <title>Prijavi ispit</title>
+  </h:head>
+  <h:body>
+    <h1>Prijavi odredjeni ispit</h1>
+    <h:form id="submitForm">
+      <h:panelGrid columns="2">
+        <p>
+          <label for="ispit">Ispit</label>
+          <h:selectOneMenu id="ispit" value="#{processVariables['ispit']}">
+              <f:selectItem itemValue="SOA" itemLabel="SOA"/>
+              <f:selectItem itemValue="MIKS" itemLabel="MIKS"/>
+              <f:selectItem itemValue="OS" itemLabel="OS"/>
+              <f:selectItem itemValue="SPOZ" itemLabel="SPOZ"/>
+          </h:selectOneMenu>
+        </p>
+      	<p>
+     	    <label for="student">Student</label>
+          <!-- create process variables using the processVariables map. -->
+          <h:inputText id="student" value="#{processVariables['student']}" required="true" />
+      	</p>
+        <p>
+          <label for="indeks">Indeks</label>
+          <!-- create process variables using the processVariables map. -->
+          <h:inputText id="indeks" value="#{processVariables['indeks']}" required="true" />
+        </p>
+      </h:panelGrid>
+
+      <!-- The button starts a new process instance. This ends the conversation and redirects us to the tasklist.
+
+           NOTE: Syntax is different when working on user task forms, see file "approveLoanRequest.xhtml".
+      -->
+      <h:commandButton id="submit_button" value="Prijavi ispit" action="#{camundaTaskForm.completeProcessInstanceForm()}" />
+
+      <h:messages style="color:red;margin:8px;" />
+    </h:form>
+  </h:body>
+</f:view>
+</html>
